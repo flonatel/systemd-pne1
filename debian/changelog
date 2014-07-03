@@ -16,6 +16,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Add /run/shm -> /dev/shm symlink in debian/tmpfiles.d/debian.conf
     (Closes: #674755).
   * Update /run/initctl symlink target in debian/tmpfiles.d/debian.conf.
+  * Add new systemd service users in systemd postinst.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
