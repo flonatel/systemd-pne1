@@ -7,7 +7,7 @@ Subject: Add support for rcS.d init scripts to the sysv-generator
  1 file changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
-index 5206279..78f8730 100644
+index 5206279..4c94ddb 100644
 --- a/src/sysv-generator/sysv-generator.c
 +++ b/src/sysv-generator/sysv-generator.c
 @@ -42,6 +42,7 @@
@@ -23,7 +23,7 @@ index 5206279..78f8730 100644
          const RunlevelType type;
  } rcnd_table[] = {
 +        /* Debian SysV runlevel for early boot */
-+        { "rcS.d",  SPECIAL_SYSINIT_TARGET,   RUNLEVEL_SYSINIT },
++        { "rcS.d",  SPECIAL_BASIC_TARGET,     RUNLEVEL_SYSINIT },
 +
          /* Standard SysV runlevels for start-up */
          { "rc1.d",  SPECIAL_RESCUE_TARGET,    RUNLEVEL_UP },
