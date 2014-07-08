@@ -30,6 +30,7 @@ systemd (214-1) UNRELEASED; urgency=medium
     initramfs (Closes: #742048).
   * Add systemd depends on new mount. (Closes: #754411)
   * Add breaks on old uuid-runtime, it lacks necessary systemd support.
+  * Add breaks on old resolvconf, it interacts badly with systemd-resolved.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
