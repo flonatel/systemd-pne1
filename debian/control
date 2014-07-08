@@ -61,6 +61,7 @@ Depends: ${shlibs:Depends},
 Breaks: lvm2 (<< 2.02.104-1),
         lsb-base (<< 4.1+Debian4),
         uuid-runtime (<< 2.22),
+        resolvconf (<< 1.75~),
 Conflicts: klogd
 Description: system and service manager
  systemd is a replacement for sysvinit.  It is dependency-based and
