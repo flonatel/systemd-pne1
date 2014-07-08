@@ -62,6 +62,12 @@ Breaks: lvm2 (<< 2.02.104-1),
         lsb-base (<< 4.1+Debian4),
         uuid-runtime (<< 2.22),
         resolvconf (<< 1.75~),
+        busybox-syslogd,
+        dsyslog,
+        inetutils-syslogd,
+        rsyslog (<< 7.4.1-2~),
+        sysklogd,
+        syslog-ng (<< 3.5.1-1~),
 Conflicts: klogd
 Description: system and service manager
  systemd is a replacement for sysvinit.  It is dependency-based and
