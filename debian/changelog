@@ -31,6 +31,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Add systemd depends on new mount. (Closes: #754411)
   * Add breaks on old uuid-runtime, it lacks necessary systemd support.
   * Add breaks on old resolvconf, it interacts badly with systemd-resolved.
+  * Add breaks on old syslog providers, they interact badly with the journal.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
