@@ -15,6 +15,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Remove pre-generated rules and unit files in debian/rules clean target.
   * Add /run/shm -> /dev/shm symlink in debian/tmpfiles.d/debian.conf
     (Closes: #674755).
+  * Update /run/initctl symlink target in debian/tmpfiles.d/debian.conf.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
