@@ -26,6 +26,9 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Install the new busctl binary and translations
   * Explicitly disable microhttp so the package build doesn't fail if the
     required dependencies for it happen to be installed.
+  * debian/control: Remove b-d on librwap0-dev and libattr1-dev, both aren't
+    used anymore
+  * debian/control: Bump libkmod-dev b-d to >= 15
 
  -- Jon Severinsson <jon@severinsson.net>  Sun, 16 Jul 2014 20:00:00 +0200
 
