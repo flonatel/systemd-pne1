@@ -17,6 +17,7 @@ systemd (214-1) UNRELEASED; urgency=medium
     (Closes: #674755).
   * Update /run/initctl symlink target in debian/tmpfiles.d/debian.conf.
   * Add new systemd service users in systemd postinst.
+  * Add new system group "input" used by udev rules in udev postinst.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
