@@ -29,6 +29,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * debian/control: Remove b-d on librwap0-dev and libattr1-dev, both aren't
     used anymore
   * debian/control: Bump libkmod-dev b-d to >= 15
+  * debian/rules: Drop outdated --enable-tcpwrap
 
  -- Jon Severinsson <jon@severinsson.net>  Sun, 16 Jul 2014 20:00:00 +0200
 
