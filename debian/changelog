@@ -30,6 +30,8 @@ systemd (214-1) UNRELEASED; urgency=medium
     used anymore
   * debian/control: Bump libkmod-dev b-d to >= 15
   * debian/rules: Drop outdated --enable-tcpwrap
+  * debian/rules: Explicitely turn off rfkill, networkd, timesyncd and resolved
+    for the udeb build
 
  -- Jon Severinsson <jon@severinsson.net>  Sun, 16 Jul 2014 20:00:00 +0200
 
