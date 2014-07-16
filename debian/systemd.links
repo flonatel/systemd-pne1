@@ -35,7 +35,6 @@
 /dev/null /lib/systemd/system/hwclockfirst.service
 
 # We use native mount support so mask those services
-# TODO: check if any SysV init scripts depend on those facilities
 /dev/null /lib/systemd/system/mountkernfs.service
 /dev/null /lib/systemd/system/mountdevsubfs.service
 /dev/null /lib/systemd/system/mountall.service
@@ -48,6 +47,7 @@
 /dev/null /lib/systemd/system/checkfs.service
 /dev/null /lib/systemd/system/checkroot.service
 /dev/null /lib/systemd/system/checkroot-bootclean.service
+/dev/null /lib/systemd/system/checkfs.service
 
 # We use the built-in cryptsetup support
 /dev/null /lib/systemd/system/cryptdisks.service

@@ -87,7 +87,6 @@ Make-net.ifnames-opt-in-instead-of-opt-out.patch
 Use-different-default-paths-for-various-binaries.patch
 Avoid-reloading-services-when-shutting-down.patch
 Avoid-reload-and-re-start-requests-during-early-boot.patch
-Order-remote-fs.target-after-local-fs.target.patch
 Load-sg-module-from-80-drivers.rules.patch
 Updates-to-default-device-permissions.patch
 Set-default-polling-interval-on-removable-devices-as.patch
@@ -101,3 +100,4 @@ Add-support-for-rcS.d-init-scripts-to-the-sysv-gener.patch
 Do-not-generate-systemd-units-from-sysv-init-scripts.patch
 Do-not-order-rcS.d-services-after-local-fs.target-if.patch
 Map-rcS.d-init-script-dependencies-to-their-systemd-.patch
+Special-case-some-dependencies-for-sysv-init-scripts.patch
