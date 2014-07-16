@@ -1,0 +1,35 @@
+From: Michael Biebl <biebl@debian.org>
+Date: Thu, 18 Oct 2012 10:16:14 +0200
+Subject: manager: avoid restart jobs that can lead to deadlocks during early
+ boot
+
+Forwarded: no
+Bug-Debian: http://bugs.debian.org/624599
+---
+ src/core/manager.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index bfb6518..88ba191 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -1082,6 +1082,19 @@ int manager_add_job(Manager *m, JobType type, Unit *unit, JobMode mode, bool ove
+                                 sd_bus_error_setf(e, BUS_ERROR_SHUTTING_DOWN, "final.target is queued, ignoring %s request for unit %s", job_type_to_string(type), unit->id);
+                                 return -EINVAL;
+                         }
++
++                        /* While basic.target is queued (early during the boot
++                         * sequence) we will not accept restart jobs for units
++                         * with DefaultDependencies=yes (implying After=basic.target),
++                         * as that can cause a deadlock if invoked blockingly from
++                         * the start job of another unit.
++                         *
++                         * See http://bugs.debian.org/624599 */
++                        if (unit->default_dependencies && strcmp(j->unit->id, "basic.target") == 0) {
++                                log_debug("basic.target is queued, ignoring %s request for unit %s", job_type_to_string(type), unit->id);
++                                sd_bus_error_setf(e, SD_BUS_ERROR_INVALID_ARGS, "basic.target is queued, ignoring %s request for unit %s", job_type_to_string(type), unit->id);
++                                return -EINVAL;
++                        }
+                 }
+         }
+ 
