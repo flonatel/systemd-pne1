@@ -1,0 +1,64 @@
+From: Jon Severinsson <jon@severinsson.net>
+Date: Wed, 16 Jul 2014 00:57:01 +0200
+Subject: core: collapse JOB_RELOAD on an inactive unit into JOB_NOP
+
+The old behavior is inconsistent and confusing, this commit simplifies matters significantly:
+
+Before this commit:
+  * systemctl try-restart on any inactive unit returns *success* immediately
+  * systemctl reload on an inactive unit without a queued start job returns *failure* immediately
+  * systemctl reload on an inactive unit supporting reload with a queued start job blocks until the unit is started
+  * systemctl reload on an inactive unit not supporting reload with a queued start returns *failure* immediately
+  * systemctl reload-or-try-restart on an inactive unit supporting reload blocks until the unit is started
+  * systemctl reload-or-try-restart on an inactive unit not supporting reload returns *success* immediately
+
+With this commit:
+  * systemctl try-restart, reload and reload-or-try-restart on any inactive unit returns *success* immediately
+
+By not blocking on a queued start job this also fixes a deadlock when
+one job calls systemctl reload or reload-or-try-restart on a unit with
+a start job ordered later in the transaction.
+---
+ src/core/job.c  |  5 +++++
+ src/core/unit.c | 10 ++++++----
+ 2 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/src/core/job.c b/src/core/job.c
+index dc4f441..ff94f73 100644
+--- a/src/core/job.c
++++ b/src/core/job.c
+@@ -362,6 +362,11 @@ void job_type_collapse(JobType *t, Unit *u) {
+ 
+         switch (*t) {
+ 
++        case JOB_RELOAD:
++                s = unit_active_state(u);
++                if (UNIT_IS_INACTIVE_OR_FAILED(s))
++                        *t = JOB_NOP;
++
+         case JOB_TRY_RESTART:
+                 s = unit_active_state(u);
+                 if (UNIT_IS_INACTIVE_OR_DEACTIVATING(s))
+diff --git a/src/core/unit.c b/src/core/unit.c
+index 6e40bc6..d56f2b2 100644
+--- a/src/core/unit.c
++++ b/src/core/unit.c
+@@ -1388,12 +1388,14 @@ int unit_reload(Unit *u) {
+         if (state == UNIT_RELOADING)
+                 return -EALREADY;
+ 
+-        if (state != UNIT_ACTIVE) {
+-                log_warning_unit(u->id, "Unit %s cannot be reloaded because it is inactive.",
+-                                 u->id);
+-                return -ENOEXEC;
++        if (UNIT_IS_INACTIVE_OR_FAILED(state)) {
++                log_debug_unit(u->id, "Unit %s cannot be reloaded because it is inactive.", u->id);
++                return -EALREADY;
+         }
+ 
++        if (state != UNIT_ACTIVE)
++                return -EAGAIN;
++
+         following = unit_following(u);
+         if (following) {
+                 log_debug_unit(u->id, "Redirecting reload request from %s to %s.",

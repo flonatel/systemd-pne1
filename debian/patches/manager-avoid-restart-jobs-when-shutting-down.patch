@@ -1,0 +1,54 @@
+From: Michael Stapelberg <stapelberg@debian.org>
+Date: Tue, 16 Oct 2012 18:39:27 +0200
+Subject: manager: avoid restart jobs when shutting down.
+
+Doing so won't work and makes no sense.
+
+Forwarded: no
+Bug-Debian: http://bugs.debian.org/624599
+Bug-Debian: http://bugs.debian.org/635777
+---
+ src/core/manager.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
+
+diff --git a/src/core/manager.c b/src/core/manager.c
+index 0cb2044..bfb6518 100644
+--- a/src/core/manager.c
++++ b/src/core/manager.c
+@@ -1040,6 +1040,8 @@ int manager_startup(Manager *m, FILE *serialization, FDSet *fds) {
+ int manager_add_job(Manager *m, JobType type, Unit *unit, JobMode mode, bool override, sd_bus_error *e, Job **_ret) {
+         int r;
+         Transaction *tr;
++        Job *j;
++        Iterator i;
+ 
+         assert(m);
+         assert(type < _JOB_TYPE_MAX);
+@@ -1062,6 +1064,27 @@ int manager_add_job(Manager *m, JobType type, Unit *unit, JobMode mode, bool ove
+ 
+         job_type_collapse(&type, unit);
+ 
++        if (type == JOB_RESTART) {
++                HASHMAP_FOREACH(j, m->jobs, i) {
++                        assert(j->installed);
++
++                        /* If final.target is queued (happens on poweroff, reboot and
++                         * halt), we will not accept new restart jobs. They would not
++                         * be executed ever anyways, as they would be queued after the
++                         * current transaction which will shut down the system, but can
++                         * cause a deadlock if invoked blockingly from the stop job of
++                         * another unit.
++                         *
++                         * See http://bugs.debian.org/624599 and
++                         *     http://bugs.debian.org/635777 */
++                        if (strcmp(j->unit->id, "final.target") == 0) {
++                                log_debug("final.target is queued, ignoring %s request for unit %s", job_type_to_string(type), unit->id);
++                                sd_bus_error_setf(e, BUS_ERROR_SHUTTING_DOWN, "final.target is queued, ignoring %s request for unit %s", job_type_to_string(type), unit->id);
++                                return -EINVAL;
++                        }
++                }
++        }
++
+         tr = transaction_new(mode == JOB_REPLACE_IRREVERSIBLY);
+         if (!tr)
+                 return -ENOMEM;
