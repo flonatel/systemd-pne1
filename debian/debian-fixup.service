@@ -2,6 +2,7 @@
 Description=Various fixups to make systemd work better on Debian
 Before=var-run.mount var-lock.mount sysinit.target
 After=systemd-remount-fs.service
+RequiresMountsFor=/var
 DefaultDependencies=no
 ConditionPathIsSymbolicLink=|!/etc/mtab
 ConditionPathIsSymbolicLink=|!/var/run

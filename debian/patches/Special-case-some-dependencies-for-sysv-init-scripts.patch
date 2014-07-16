@@ -1,0 +1,65 @@
+From: Jon Severinsson <jon@severinsson.net>
+Date: Wed, 2 Jul 2014 22:00:00 +0200
+Subject: Special-case some dependencies for sysv init scripts,
+ for better backwards compatibility.
+
+---
+ src/sysv-generator/sysv-generator.c | 45 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+
+diff --git a/src/sysv-generator/sysv-generator.c b/src/sysv-generator/sysv-generator.c
+index 6da30b0..dc327ab 100644
+--- a/src/sysv-generator/sysv-generator.c
++++ b/src/sysv-generator/sysv-generator.c
+@@ -656,6 +656,51 @@ static int fix_order(SysvStub *s, Hashmap *all_services) {
+ 
+         assert(s);
+ 
++        if (s->sysinit) {
++                /* sysinit services can't be ordered after remote-fs.target or
++                 * network.target as those are ordered after basic.target */
++                if (strv_contains(s->after, SPECIAL_REMOTE_FS_TARGET)) {
++                        strv_remove(s->after, SPECIAL_REMOTE_FS_TARGET);
++                        r = strv_extend(&s->after, SPECIAL_LOCAL_FS_TARGET);
++                        if (r < 0)
++                                return log_oom();
++                        r = strv_extend(&s->after, "networking.service");
++                        if (r < 0)
++                                return log_oom();
++                }
++                if (strv_contains(s->after, SPECIAL_NETWORK_ONLINE_TARGET)) {
++                        strv_remove(s->after, SPECIAL_NETWORK_ONLINE_TARGET);
++                        strv_remove(s->wants, SPECIAL_NETWORK_ONLINE_TARGET);
++                        r = strv_extend(&s->after, "networking.service");
++                        if (r < 0)
++                                return log_oom();
++                }
++
++                /* The /run/lock mount and the /var/run and /var/lock symlinks
++                 * were created very early in rcS.d, so make sure as many rcS.d
++                 * init scripts as possible are run after they are created.
++                 * NB: rcS.d init scripts ordered after mountkernfs but before
++                 * checkroot are out of luck, we can't do anything about those
++                 * except pray they don't use /run/lock, /var/run or /var/lock. */
++                if (!strv_contains(s->before, "systemd-remount-fs.service")) {
++                        r = strv_extend(&s->after, "run-lock.mount");
++                        if (r < 0)
++                                return log_oom();
++                        r = strv_extend(&s->after, "debian-fixup.service");
++                        if (r < 0)
++                                return log_oom();
++                }
++        } else {
++                /* Non-rcS.d LSB init scripts might expect remote file systems
++                 * to be mounted even though they lack an explicit dependency. */
++                r = strv_extend(&s->after, SPECIAL_REMOTE_FS_TARGET);
++                if (r < 0)
++                        return log_oom();
++        }
++
++        /* Remove any duplicates we might have created above */
++        s->after = strv_uniq(s->after);
++
+         if (s->sysv_start_priority < 0)
+                 return 0;
+ 
