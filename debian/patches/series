@@ -64,7 +64,10 @@ build-sys-don-t-move-libgudev-to-lib.patch
 shared-include-stdbool.h-in-mkdir.h.patch
 
 ## Debian specific patches:
-Add-back-support-for-Debian-specific-config-files.patch
+core-use-etc-default-locale-for-locale-configuration.patch
+localed-use-etc-default-locale-for-locale-configurat.patch
+localed-use-etc-default-keyboard-for-keymap-configur.patch
+timedated-also-store-timezone-configuration-in-etc-t.patch
 Make-systemctl-enable-disable-call-update-rc.d-for-s.patch
 Also-redirect-to-update-rc.d-when-not-using-.service.patch
 systemctl-don-t-skip-native-units-when-enabling-disa.patch
@@ -74,7 +77,6 @@ fstab-generator-don-t-rely-on-usr-being-mounted-in-t.patch
 remount-fs-do-not-assume-usr-was-mounted-in-the-init.patch
 units-add-RequiresMountsFor-usr-to-various-systemd-s.patch
 Make-hostnamed-localed-timedated-D-Bus-activatable.patch
-Update-localed-to-use-the-Debian-config-files.patch
 Add-note-to-udev.conf-that-changes-to-that-file-requ.patch
 Bring-tmpfiles.d-tmp.conf-in-line-with-Debian-defaul.patch
 Don-t-mount-tmp-as-tmpfs-by-default.patch

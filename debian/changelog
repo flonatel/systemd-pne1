@@ -33,6 +33,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Add breaks on old resolvconf, it interacts badly with systemd-resolved.
   * Add breaks on old syslog providers, they interact badly with the journal.
   * Order rcS.d init scripts before basic.target instead of sysinit.target.
+  * Rework support for Debian-specific locale, keyboard and timezone conf files.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch

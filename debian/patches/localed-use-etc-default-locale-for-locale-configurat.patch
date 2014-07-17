@@ -1,0 +1,71 @@
+From: Michael Biebl <biebl@debian.org>
+Date: Thu, 18 Jul 2013 20:18:31 +0200
+Subject: localed: use /etc/default/locale for locale configuration unless
+ /etc/locale.conf already exists
+
+Author: Steve Langasek <vorlon@debian.org>
+Forwarded: not-needed
+---
+ src/locale/localed.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/src/locale/localed.c b/src/locale/localed.c
+index e3061c8..2b61a66 100644
+--- a/src/locale/localed.c
++++ b/src/locale/localed.c
+@@ -170,6 +170,24 @@ static int locale_read_data(Context *c) {
+                            "LC_IDENTIFICATION", &c->locale[LOCALE_LC_IDENTIFICATION],
+                            NULL);
+ 
++        if (r == -ENOENT)
++                r = parse_env_file("/etc/default/locale", NEWLINE,
++                                   "LANG",              &c->locale[LOCALE_LANG],
++                                   "LANGUAGE",          &c->locale[LOCALE_LANGUAGE],
++                                   "LC_CTYPE",          &c->locale[LOCALE_LC_CTYPE],
++                                   "LC_NUMERIC",        &c->locale[LOCALE_LC_NUMERIC],
++                                   "LC_TIME",           &c->locale[LOCALE_LC_TIME],
++                                   "LC_COLLATE",        &c->locale[LOCALE_LC_COLLATE],
++                                   "LC_MONETARY",       &c->locale[LOCALE_LC_MONETARY],
++                                   "LC_MESSAGES",       &c->locale[LOCALE_LC_MESSAGES],
++                                   "LC_PAPER",          &c->locale[LOCALE_LC_PAPER],
++                                   "LC_NAME",           &c->locale[LOCALE_LC_NAME],
++                                   "LC_ADDRESS",        &c->locale[LOCALE_LC_ADDRESS],
++                                   "LC_TELEPHONE",      &c->locale[LOCALE_LC_TELEPHONE],
++                                   "LC_MEASUREMENT",    &c->locale[LOCALE_LC_MEASUREMENT],
++                                   "LC_IDENTIFICATION", &c->locale[LOCALE_LC_IDENTIFICATION],
++                                   NULL);
++
+         if (r == -ENOENT) {
+                 int p;
+ 
+@@ -287,8 +305,13 @@ static int context_read_data(Context *c) {
+ static int locale_write_data(Context *c) {
+         int r, p;
+         char **l = NULL;
++        const char *path = "/etc/locale.conf";
+ 
+-        r = load_env_file("/etc/locale.conf", NULL, &l);
++        r = load_env_file(path, NULL, &l);
++        if (r < 0 && r == -ENOENT) {
++                path = "/etc/default/locale";
++                r = load_env_file(path, NULL, &l);
++        }
+         if (r < 0 && r != -ENOENT)
+                 return r;
+ 
+@@ -320,13 +343,13 @@ static int locale_write_data(Context *c) {
+         if (strv_isempty(l)) {
+                 strv_free(l);
+ 
+-                if (unlink("/etc/locale.conf") < 0)
++                if (unlink(path) < 0)
+                         return errno == ENOENT ? 0 : -errno;
+ 
+                 return 0;
+         }
+ 
+-        r = write_env_file_label("/etc/locale.conf", l);
++        r = write_env_file_label(path, l);
+         strv_free(l);
+ 
+         return r;
