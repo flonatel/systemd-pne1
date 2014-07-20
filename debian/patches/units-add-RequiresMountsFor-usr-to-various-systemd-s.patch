@@ -1,0 +1,74 @@
+From: Jon Severinsson <jon@severinsson.net>
+Date: Sun, 20 Jul 2014 20:00:00 +0200
+Subject: =?utf-8?q?units=3A_add_RequiresMountsFor=3D/usr/=E2=80=A6_to_vari?=
+ =?utf-8?q?ous_systemd_services=2E?=
+
+Debian doesn't mount /usr in the initrd yet, so it might not be availible immediately.
+---
+ units/systemd-binfmt.service.in         | 1 +
+ units/systemd-modules-load.service.in   | 1 +
+ units/systemd-sysctl.service.in         | 1 +
+ units/systemd-timedated.service.in      | 1 +
+ units/systemd-tmpfiles-setup.service.in | 1 +
+ 5 files changed, 5 insertions(+)
+
+diff --git a/units/systemd-binfmt.service.in b/units/systemd-binfmt.service.in
+index 02dfe77..a8fe42e 100644
+--- a/units/systemd-binfmt.service.in
++++ b/units/systemd-binfmt.service.in
+@@ -11,6 +11,7 @@ Documentation=man:systemd-binfmt.service(8) man:binfmt.d(5)
+ Documentation=https://www.kernel.org/doc/Documentation/binfmt_misc.txt
+ DefaultDependencies=no
+ Conflicts=shutdown.target
++RequiresMountsFor=/usr/lib/binfmt.d /usr/local/lib/binfmt.d
+ After=systemd-readahead-collect.service systemd-readahead-replay.service proc-sys-fs-binfmt_misc.automount
+ Before=sysinit.target shutdown.target
+ ConditionPathIsReadWrite=/proc/sys/
+diff --git a/units/systemd-modules-load.service.in b/units/systemd-modules-load.service.in
+index 32deb52..0619037 100644
+--- a/units/systemd-modules-load.service.in
++++ b/units/systemd-modules-load.service.in
+@@ -10,6 +10,7 @@ Description=Load Kernel Modules
+ Documentation=man:systemd-modules-load.service(8) man:modules-load.d(5)
+ DefaultDependencies=no
+ Conflicts=shutdown.target
++RequiresMountsFor=/usr/lib/modules-load.d /usr/local/lib/modules-load.d
+ After=systemd-readahead-collect.service systemd-readahead-replay.service
+ Before=sysinit.target shutdown.target
+ ConditionCapability=CAP_SYS_MODULE
+diff --git a/units/systemd-sysctl.service.in b/units/systemd-sysctl.service.in
+index b8e8175..9e652d9 100644
+--- a/units/systemd-sysctl.service.in
++++ b/units/systemd-sysctl.service.in
+@@ -10,6 +10,7 @@ Description=Apply Kernel Variables
+ Documentation=man:systemd-sysctl.service(8) man:sysctl.d(5)
+ DefaultDependencies=no
+ Conflicts=shutdown.target
++RequiresMountsFor=/usr/lib/sysctl.d /usr/local/lib/sysctl.d
+ After=systemd-readahead-collect.service systemd-readahead-replay.service
+ After=systemd-modules-load.service
+ Before=sysinit.target shutdown.target
+diff --git a/units/systemd-timedated.service.in b/units/systemd-timedated.service.in
+index fe5ccb4..6385738 100644
+--- a/units/systemd-timedated.service.in
++++ b/units/systemd-timedated.service.in
+@@ -9,6 +9,7 @@
+ Description=Time & Date Service
+ Documentation=man:systemd-timedated.service(8) man:localtime(5)
+ Documentation=http://www.freedesktop.org/wiki/Software/systemd/timedated
++RequiresMountsFor=/usr/share/zoneinfo
+ 
+ [Service]
+ ExecStart=@rootlibexecdir@/systemd-timedated
+diff --git a/units/systemd-tmpfiles-setup.service.in b/units/systemd-tmpfiles-setup.service.in
+index 01043b7..2d7eecc 100644
+--- a/units/systemd-tmpfiles-setup.service.in
++++ b/units/systemd-tmpfiles-setup.service.in
+@@ -11,6 +11,7 @@ Documentation=man:tmpfiles.d(5) man:systemd-tmpfiles(8)
+ DefaultDependencies=no
+ Wants=local-fs.target
+ Conflicts=shutdown.target
++RequiresMountsFor=/usr/lib/tmpfiles.d /usr/local/lib/tmpfiles.d
+ After=systemd-readahead-collect.service systemd-readahead-replay.service local-fs.target
+ Before=sysinit.target shutdown.target
+ ConditionDirectoryNotEmpty=|/usr/lib/tmpfiles.d

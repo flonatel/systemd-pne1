@@ -70,8 +70,9 @@ Also-redirect-to-update-rc.d-when-not-using-.service.patch
 systemctl-don-t-skip-native-units-when-enabling-disa.patch
 Run-update-rc.d-defaults-before-update-rc.d-enable-d.patch
 don-t-try-to-start-autovt-units-when-not-running-wit.patch
-timedated-don-t-rely-on-usr-being-mounted-in-the-ini.patch
 fstab-generator-don-t-rely-on-usr-being-mounted-in-t.patch
+remount-fs-do-not-assume-usr-was-mounted-in-the-init.patch
+units-add-RequiresMountsFor-usr-to-various-systemd-s.patch
 Make-hostnamed-localed-timedated-D-Bus-activatable.patch
 Update-localed-to-use-the-Debian-config-files.patch
 Add-note-to-udev.conf-that-changes-to-that-file-requ.patch
