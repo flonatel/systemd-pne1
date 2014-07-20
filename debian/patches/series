@@ -70,11 +70,12 @@ Also-redirect-to-update-rc.d-when-not-using-.service.patch
 systemctl-don-t-skip-native-units-when-enabling-disa.patch
 Run-update-rc.d-defaults-before-update-rc.d-enable-d.patch
 don-t-try-to-start-autovt-units-when-not-running-wit.patch
-timedated-don-t-rely-on-usr-being-mounted-in-the-ini.patch
 fstab-generator-don-t-rely-on-usr-being-mounted-in-t.patch
-Make-logind-hostnamed-localed-timedated-D-Bus-activa.patch
 Launch-logind-via-a-shell-wrapper.patch
 Start-logind-on-demand-via-libpam-systemd.patch
+remount-fs-do-not-assume-usr-was-mounted-in-the-init.patch
+units-add-RequiresMountsFor-usr-to-various-systemd-s.patch
+Make-hostnamed-localed-timedated-D-Bus-activatable.patch
 Update-localed-to-use-the-Debian-config-files.patch
 Add-note-to-udev.conf-that-changes-to-that-file-requ.patch
 Bring-tmpfiles.d-tmp.conf-in-line-with-Debian-defaul.patch

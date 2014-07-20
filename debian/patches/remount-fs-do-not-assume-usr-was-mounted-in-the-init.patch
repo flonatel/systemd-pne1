@@ -1,0 +1,53 @@
+From: Jon Severinsson <jon@severinsson.net>
+Date: Sun, 20 Jul 2014 20:00:00 +0200
+Subject: remount-fs: do not assume /usr was mounted in the initrd
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+Debian is not there yet. Let’s revert this upstream change for now.
+---
+ man/systemd-remount-fs.service.xml | 5 ++---
+ src/remount-fs/remount-fs.c        | 5 ++---
+ 2 files changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/man/systemd-remount-fs.service.xml b/man/systemd-remount-fs.service.xml
+index cf04713..fd4cb1b 100644
+--- a/man/systemd-remount-fs.service.xml
++++ b/man/systemd-remount-fs.service.xml
+@@ -58,7 +58,7 @@
+                 is an early-boot service that applies mount options
+                 listed in
+                 <citerefentry><refentrytitle>fstab</refentrytitle><manvolnum>5</manvolnum></citerefentry>
+-                to the root file system, the <filename>/usr</filename>
++                to the root
+                 file system and the kernel API file systems. This is
+                 required so that the mount options of these file
+                 systems -- which are pre-mounted by the kernel, the
+@@ -66,8 +66,7 @@
+                 manager code -- are updated to those listed in
+                 <filename>/etc/fstab</filename>. This service ignores
+                 normal file systems and only changes the root file
+-                system (i.e. <filename>/</filename>),
+-                <filename>/usr</filename> and the virtual kernel API
++                system (i.e. <filename>/</filename>) and the virtual kernel API
+                 file systems such as <filename>/proc</filename>,
+                 <filename>/sys</filename> or
+                 <filename>/dev</filename>. This service executes no
+diff --git a/src/remount-fs/remount-fs.c b/src/remount-fs/remount-fs.c
+index 847637a..44cc959 100644
+--- a/src/remount-fs/remount-fs.c
++++ b/src/remount-fs/remount-fs.c
+@@ -77,10 +77,9 @@ int main(int argc, char *argv[]) {
+                 int k;
+                 char *s;
+ 
+-                /* Remount the root fs, /usr and all API VFS */
++                /* Remount the root fs and all API VFS */
+                 if (!mount_point_is_api(me->mnt_dir) &&
+-                    !path_equal(me->mnt_dir, "/") &&
+-                    !path_equal(me->mnt_dir, "/usr"))
++                    !path_equal(me->mnt_dir, "/"))
+                         continue;
+ 
+                 log_debug("Remounting %s", me->mnt_dir);
