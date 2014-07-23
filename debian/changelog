@@ -28,6 +28,7 @@ systemd (214-1) UNRELEASED; urgency=medium
       backwards compatibility. (Closes: #726027, #738965).
   * Fix various features that didn't work if /usr wasn't mounted in the
     initramfs (Closes: #742048).
+  * Add systemd depends on new mount. (Closes: #754411)
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
