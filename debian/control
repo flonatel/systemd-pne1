@@ -81,6 +81,7 @@ Conflicts: sysvinit-core,
 Replaces: sysvinit (<< 2.88dsf-44~),
           sysvinit-core,
           upstart
+Pre-Depends: systemd
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          systemd (= ${binary:Version})
