@@ -5,7 +5,7 @@ systemd (208-7) UNRELEASED; urgency=medium
     in more detail why certain services have been masked. (Closes: #659264)
 
   [ Jon Severinsson ]
-  * Cherry-pick upstream fix for journal file permissions.
+  * Cherry-pick upstream fix for journal file permissions. (Closes: #755062)
   * Map some rcS.d init script dependencies to their systemd equivalent.
   * Update Depends on initscripts to the version with a systemd-compatible
     mountnfs ifup hook. (Closes: #746358)
