@@ -30,6 +30,7 @@ systemd (214-1) UNRELEASED; urgency=medium
   * Remove stored backlog state, rfkill state, random-seed and clock
     information from /var/lib/systemd on systemd purge.
   * Fix various features that didn't work if /usr wasn't mounted in the initramfs.
+  * Add breaks on old uuid-runtime, it lacks necessary systemd support.
 
   [ Sjoerd Simons ]
   * debian/patches/shared-include-stdbool.h-in-mkdir.h.patch
