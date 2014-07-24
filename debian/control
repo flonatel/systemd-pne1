@@ -45,18 +45,19 @@ Section: admin
 Priority: optional
 Recommends: libpam-systemd
 Suggests: systemd-ui
-Pre-Depends: ${misc:Pre-Depends}
+Pre-Depends: ${shlibs:Pre-Depends},
+             ${misc:Pre-Depends}
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          libsystemd0 (= ${binary:Version}),
          util-linux (>= 2.19.1-2),
-         initscripts (>= 2.88dsf-17),
+         initscripts (>= 2.88dsf-53.2),
          sysv-rc,
          udev,
          acl,
          adduser,
          libcap2-bin
-Breaks: lvm2 (<< 2.02.84-1),
+Breaks: lvm2 (<< 2.02.104-1),
         lsb-base (<< 4.1+Debian4)
 Conflicts: klogd
 Description: system and service manager
@@ -80,6 +81,7 @@ Conflicts: sysvinit-core,
 Replaces: sysvinit (<< 2.88dsf-44~),
           sysvinit-core,
           upstart
+Pre-Depends: systemd
 Depends: ${shlibs:Depends},
          ${misc:Depends},
          systemd (= ${binary:Version})
@@ -128,9 +130,9 @@ Architecture: linux-any
 Multi-Arch: same
 Section: libs
 Priority: optional
-Pre-Depends: ${misc:Pre-Depends}
-Depends: ${shlibs:Depends},
-         ${misc:Depends}
+Pre-Depends: ${shlibs:Depends},
+             ${misc:Pre-Depends}
+Depends: ${misc:Depends}
 Description: systemd utility library
  The libsystemd0 library provides interfaces to various systemd components
 
