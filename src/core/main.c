@@ -735,7 +735,7 @@ static int parse_argv(int argc, char *argv[]) {
                 { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
                 { "unit",                     required_argument, NULL, ARG_UNIT                     },
                 { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
-                { "basic-system-init",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
+                { "basic-system-setup",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
                 { "user",                     no_argument,       NULL, ARG_USER                     },
                 { "test",                     no_argument,       NULL, ARG_TEST                     },
                 { "help",                     no_argument,       NULL, 'h'                          },
