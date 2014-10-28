@@ -33,9 +33,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 */
 
-extern bool arg_basic_system_setup;
+extern int arg_basic_system_setup;
 
-inline bool do_basic_system_setup()
+inline int do_basic_system_setup()
 {
         return getpid() == 1 || arg_basic_system_setup;
 }
