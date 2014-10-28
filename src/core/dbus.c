@@ -43,6 +43,7 @@
 #include "strxcpyx.h"
 #include "bus-internal.h"
 #include "selinux-access.h"
+#include "basic-system-setup.h"
 
 #define CONNECTIONS_MAX 512
 
@@ -954,7 +955,7 @@ static int bus_init_private(Manager *m) {
         if (m->running_as == SYSTEMD_SYSTEM) {
 
                 /* We want the private bus only when running as init */
-                if (getpid() != 1)
+                if (! do_basic_system_setup())
                         return 0;
 
                 strcpy(sa.un.sun_path, "/run/systemd/private");

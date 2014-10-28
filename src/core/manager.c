@@ -75,6 +75,7 @@
 #include "dbus-job.h"
 #include "dbus-manager.h"
 #include "bus-kernel.h"
+#include "basic-system-setup.h"
 
 /* As soon as 5s passed since a unit was added to our GC queue, make sure to run a gc sweep */
 #define GC_QUEUE_USEC_MAX (10*USEC_PER_SEC)
@@ -2559,7 +2560,7 @@ static int create_generator_dir(Manager *m, char **generator, const char *name) 
         if (*generator)
                 return 0;
 
-        if (m->running_as == SYSTEMD_SYSTEM && getpid() == 1) {
+        if (m->running_as == SYSTEMD_SYSTEM && do_basic_system_setup()) {
                 /* systemd --system, not running --test */
 
                 p = strappend("/run/systemd/", name);

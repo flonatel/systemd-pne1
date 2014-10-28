@@ -66,6 +66,7 @@
 #include "dbus-manager.h"
 #include "bus-error.h"
 #include "bus-util.h"
+#include "basic-system-setup.h"
 
 #include "mount-setup.h"
 #include "loopback-setup.h"
@@ -88,6 +89,7 @@ static enum {
 } arg_action = ACTION_RUN;
 static char *arg_default_unit = NULL;
 static SystemdRunningAs arg_running_as = _SYSTEMD_RUNNING_AS_INVALID;
+bool arg_basic_system_setup = false;
 static bool arg_dump_core = true;
 static bool arg_crash_shell = false;
 static int arg_crash_chvt = -1;
@@ -712,6 +714,7 @@ static int parse_argv(int argc, char *argv[]) {
                 ARG_LOG_LOCATION,
                 ARG_UNIT,
                 ARG_SYSTEM,
+                ARG_BASIC_SYSTEM_SETUP,
                 ARG_USER,
                 ARG_TEST,
                 ARG_VERSION,
@@ -733,6 +736,7 @@ static int parse_argv(int argc, char *argv[]) {
                 { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
                 { "unit",                     required_argument, NULL, ARG_UNIT                     },
                 { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
+                { "basic-system-setup",       no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
                 { "user",                     no_argument,       NULL, ARG_USER                     },
                 { "test",                     no_argument,       NULL, ARG_TEST                     },
                 { "help",                     no_argument,       NULL, 'h'                          },
@@ -754,7 +758,7 @@ static int parse_argv(int argc, char *argv[]) {
         assert(argc >= 1);
         assert(argv);
 
-        if (getpid() == 1)
+        if (do_basic_system_setup())
                 opterr = 0;
 
         while ((c = getopt_long(argc, argv, "hDbsz:", options, NULL)) >= 0)
@@ -838,6 +842,400 @@ static int parse_argv(int argc, char *argv[]) {
 
                 case ARG_USER:
                         arg_running_as = SYSTEMD_USER;
+                        break;
+
+                case ARG_BASIC_SYSTEM_SETUP,
+                ARG_USER,
+                ARG_TEST,
+                ARG_VERSION,
+                ARG_DUMP_CONFIGURATION_ITEMS,
+                ARG_DUMP_CORE,
+                ARG_CRASH_SHELL,
+                ARG_CONFIRM_SPAWN,
+                ARG_SHOW_STATUS,
+                ARG_DESERIALIZE,
+                ARG_SWITCHED_ROOT,
+                ARG_DEFAULT_STD_OUTPUT,
+                ARG_DEFAULT_STD_ERROR
+        };
+
+        static const struct option options[] = {
+                { "log-level",                required_argument, NULL, ARG_LOG_LEVEL                },
+                { "log-target",               required_argument, NULL, ARG_LOG_TARGET               },
+                { "log-color",                optional_argument, NULL, ARG_LOG_COLOR                },
+                { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
+                { "unit",                     required_argument, NULL, ARG_UNIT                     },
+                { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
+                { "basic-system-init",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
+                { "user",                     no_argument,       NULL, ARG_USER                     },
+                { "test",                     no_argument,       NULL, ARG_TEST                     },
+                { "help",                     no_argument,       NULL, 'h'                          },
+                { "version",                  no_argument,       NULL, ARG_VERSION                  },
+                { "dump-configuration-items", no_argument,       NULL, ARG_DUMP_CONFIGURATION_ITEMS },
+                { "dump-core",                optional_argument, NULL, ARG_DUMP_CORE                },
+                { "crash-shell",              optional_argument, NULL, ARG_CRASH_SHELL              },
+                { "confirm-spawn",            optional_argument, NULL, ARG_CONFIRM_SPAWN            },
+                { "show-status",              optional_argument, NULL, ARG_SHOW_STATUS              },
+                { "deserialize",              required_argument, NULL, ARG_DESERIALIZE              },
+                { "switched-root",            no_argument,       NULL, ARG_SWITCHED_ROOT            },
+                { "default-standard-output",  required_argument, NULL, ARG_DEFAULT_STD_OUTPUT,      },
+                { "default-standard-error",   required_argument, NULL, ARG_DEFAULT_STD_ERROR,       },
+                {}
+        };
+
+        int c, r;
+
+        assert(argc >= 1);
+        assert(argv);
+
+        if (do_basic_system_setup())
+                opterr = 0;
+
+        while ((c = getopt_long(argc, argv, "hDbsz:", options, NULL)) >= 0)
+
+                switch (c) {
+
+                case ARG_LOG_LEVEL:
+                        r = log_set_max_level_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log level %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_TARGET:
+                        r = log_set_target_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log target %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_COLOR:
+
+                        if (optarg) {
+                                r = log_show_color_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log color setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_color(true);
+
+                        break;
+
+                case ARG_LOG_LOCATION:
+                        if (optarg) {
+                                r = log_show_location_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log location setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_location(true);
+
+                        break;
+
+                case ARG_DEFAULT_STD_OUTPUT:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_output = r;
+                        break;
+
+                case ARG_DEFAULT_STD_ERROR:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard error output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_error = r;
+                        break;
+
+                case ARG_UNIT:
+
+                        r = set_default_unit(optarg);
+                        if (r < 0) {
+                                log_error("Failed to set default unit %s: %s", optarg, strerror(-r));
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_SYSTEM:
+                        arg_running_as = SYSTEMD_SYSTEM;
+                        break;
+
+                case ARG_USER:
+                        arg_running_as = SYSTEMD_USER;
+                        break;
+
+                case ARG_BASIC_SYSTEM_SETUP,
+                ARG_USER,
+                ARG_TEST,
+                ARG_VERSION,
+                ARG_DUMP_CONFIGURATION_ITEMS,
+                ARG_DUMP_CORE,
+                ARG_CRASH_SHELL,
+                ARG_CONFIRM_SPAWN,
+                ARG_SHOW_STATUS,
+                ARG_DESERIALIZE,
+                ARG_SWITCHED_ROOT,
+                ARG_DEFAULT_STD_OUTPUT,
+                ARG_DEFAULT_STD_ERROR
+        };
+
+        static const struct option options[] = {
+                { "log-level",                required_argument, NULL, ARG_LOG_LEVEL                },
+                { "log-target",               required_argument, NULL, ARG_LOG_TARGET               },
+                { "log-color",                optional_argument, NULL, ARG_LOG_COLOR                },
+                { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
+                { "unit",                     required_argument, NULL, ARG_UNIT                     },
+                { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
+                { "basic-system-init",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
+                { "user",                     no_argument,       NULL, ARG_USER                     },
+                { "test",                     no_argument,       NULL, ARG_TEST                     },
+                { "help",                     no_argument,       NULL, 'h'                          },
+                { "version",                  no_argument,       NULL, ARG_VERSION                  },
+                { "dump-configuration-items", no_argument,       NULL, ARG_DUMP_CONFIGURATION_ITEMS },
+                { "dump-core",                optional_argument, NULL, ARG_DUMP_CORE                },
+                { "crash-shell",              optional_argument, NULL, ARG_CRASH_SHELL              },
+                { "confirm-spawn",            optional_argument, NULL, ARG_CONFIRM_SPAWN            },
+                { "show-status",              optional_argument, NULL, ARG_SHOW_STATUS              },
+                { "deserialize",              required_argument, NULL, ARG_DESERIALIZE              },
+                { "switched-root",            no_argument,       NULL, ARG_SWITCHED_ROOT            },
+                { "default-standard-output",  required_argument, NULL, ARG_DEFAULT_STD_OUTPUT,      },
+                { "default-standard-error",   required_argument, NULL, ARG_DEFAULT_STD_ERROR,       },
+                {}
+        };
+
+        int c, r;
+
+        assert(argc >= 1);
+        assert(argv);
+
+        if (do_basic_system_setup())
+                opterr = 0;
+
+        while ((c = getopt_long(argc, argv, "hDbsz:", options, NULL)) >= 0)
+
+                switch (c) {
+
+                case ARG_LOG_LEVEL:
+                        r = log_set_max_level_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log level %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_TARGET:
+                        r = log_set_target_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log target %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_COLOR:
+
+                        if (optarg) {
+                                r = log_show_color_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log color setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_color(true);
+
+                        break;
+
+                case ARG_LOG_LOCATION:
+                        if (optarg) {
+                                r = log_show_location_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log location setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_location(true);
+
+                        break;
+
+                case ARG_DEFAULT_STD_OUTPUT:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_output = r;
+                        break;
+
+                case ARG_DEFAULT_STD_ERROR:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard error output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_error = r;
+                        break;
+
+                case ARG_UNIT:
+
+                        r = set_default_unit(optarg);
+                        if (r < 0) {
+                                log_error("Failed to set default unit %s: %s", optarg, strerror(-r));
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_SYSTEM:
+                        arg_running_as = SYSTEMD_SYSTEM;
+                        break;
+
+                case ARG_USER:
+                        arg_running_as = SYSTEMD_USER;
+                        break;
+
+                case ARG_BASIC_SYSTEM_SETUP,
+                ARG_USER,
+                ARG_TEST,
+                ARG_VERSION,
+                ARG_DUMP_CONFIGURATION_ITEMS,
+                ARG_DUMP_CORE,
+                ARG_CRASH_SHELL,
+                ARG_CONFIRM_SPAWN,
+                ARG_SHOW_STATUS,
+                ARG_DESERIALIZE,
+                ARG_SWITCHED_ROOT,
+                ARG_DEFAULT_STD_OUTPUT,
+                ARG_DEFAULT_STD_ERROR
+        };
+
+        static const struct option options[] = {
+                { "log-level",                required_argument, NULL, ARG_LOG_LEVEL                },
+                { "log-target",               required_argument, NULL, ARG_LOG_TARGET               },
+                { "log-color",                optional_argument, NULL, ARG_LOG_COLOR                },
+                { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
+                { "unit",                     required_argument, NULL, ARG_UNIT                     },
+                { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
+                { "basic-system-init",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
+                { "user",                     no_argument,       NULL, ARG_USER                     },
+                { "test",                     no_argument,       NULL, ARG_TEST                     },
+                { "help",                     no_argument,       NULL, 'h'                          },
+                { "version",                  no_argument,       NULL, ARG_VERSION                  },
+                { "dump-configuration-items", no_argument,       NULL, ARG_DUMP_CONFIGURATION_ITEMS },
+                { "dump-core",                optional_argument, NULL, ARG_DUMP_CORE                },
+                { "crash-shell",              optional_argument, NULL, ARG_CRASH_SHELL              },
+                { "confirm-spawn",            optional_argument, NULL, ARG_CONFIRM_SPAWN            },
+                { "show-status",              optional_argument, NULL, ARG_SHOW_STATUS              },
+                { "deserialize",              required_argument, NULL, ARG_DESERIALIZE              },
+                { "switched-root",            no_argument,       NULL, ARG_SWITCHED_ROOT            },
+                { "default-standard-output",  required_argument, NULL, ARG_DEFAULT_STD_OUTPUT,      },
+                { "default-standard-error",   required_argument, NULL, ARG_DEFAULT_STD_ERROR,       },
+                {}
+        };
+
+        int c, r;
+
+        assert(argc >= 1);
+        assert(argv);
+
+        if (do_basic_system_setup())
+                opterr = 0;
+
+        while ((c = getopt_long(argc, argv, "hDbsz:", options, NULL)) >= 0)
+
+                switch (c) {
+
+                case ARG_LOG_LEVEL:
+                        r = log_set_max_level_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log level %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_TARGET:
+                        r = log_set_target_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse log target %s.", optarg);
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_LOG_COLOR:
+
+                        if (optarg) {
+                                r = log_show_color_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log color setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_color(true);
+
+                        break;
+
+                case ARG_LOG_LOCATION:
+                        if (optarg) {
+                                r = log_show_location_from_string(optarg);
+                                if (r < 0) {
+                                        log_error("Failed to parse log location setting %s.", optarg);
+                                        return r;
+                                }
+                        } else
+                                log_show_location(true);
+
+                        break;
+
+                case ARG_DEFAULT_STD_OUTPUT:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_output = r;
+                        break;
+
+                case ARG_DEFAULT_STD_ERROR:
+                        r = exec_output_from_string(optarg);
+                        if (r < 0) {
+                                log_error("Failed to parse default standard error output setting %s.", optarg);
+                                return r;
+                        } else
+                                arg_default_std_error = r;
+                        break;
+
+                case ARG_UNIT:
+
+                        r = set_default_unit(optarg);
+                        if (r < 0) {
+                                log_error("Failed to set default unit %s: %s", optarg, strerror(-r));
+                                return r;
+                        }
+
+                        break;
+
+                case ARG_SYSTEM:
+                        arg_running_as = SYSTEMD_SYSTEM;
+                        break;
+
+                case ARG_USER:
+                        arg_running_as = SYSTEMD_USER;
+                        break;
+
+                case ARG_BASIC_SYSTEM_SETUP:
+                        arg_basic_system_setup = true;
                         break;
 
                 case ARG_TEST:
@@ -938,7 +1336,7 @@ static int parse_argv(int argc, char *argv[]) {
 
                 case '?':
                 default:
-                        if (getpid() != 1) {
+                        if (! do_basic_system_setup()) {
                                 log_error("Unknown option code %c", c);
                                 return -EINVAL;
                         }
@@ -946,7 +1344,7 @@ static int parse_argv(int argc, char *argv[]) {
                         break;
                 }
 
-        if (optind < argc && getpid() != 1) {
+        if (optind < argc && ! do_basic_system_setup()) {
                 /* Hmm, when we aren't run as init system
                  * let's complain about excess arguments */
 
@@ -1314,10 +1712,10 @@ int main(int argc, char *argv[]) {
         log_show_color(isatty(STDERR_FILENO) > 0);
 
         /* Disable the umask logic */
-        if (getpid() == 1)
+        if (do_basic_system_setup())
                 umask(0);
 
-        if (getpid() == 1 && detect_container(NULL) <= 0) {
+        if (do_basic_system_setup() && detect_container(NULL) <= 0) {
 
                 /* Running outside of a container as PID 1 */
                 arg_running_as = SYSTEMD_SYSTEM;
@@ -1379,7 +1777,7 @@ int main(int argc, char *argv[]) {
                  * might redirect output elsewhere. */
                 log_set_target(LOG_TARGET_JOURNAL_OR_KMSG);
 
-        } else if (getpid() == 1) {
+        } else if (do_basic_system_setup()) {
                 /* Running inside a container, as PID 1 */
                 arg_running_as = SYSTEMD_SYSTEM;
                 log_set_target(LOG_TARGET_CONSOLE);
@@ -1419,7 +1817,7 @@ int main(int argc, char *argv[]) {
 
         /* Mount /proc, /sys and friends, so that /proc/cmdline and
          * /proc/$PID/fd is available. */
-        if (getpid() == 1) {
+        if (do_basic_system_setup()) {
                 r = mount_setup(loaded_policy);
                 if (r < 0)
                         goto finish;
@@ -1509,7 +1907,7 @@ int main(int argc, char *argv[]) {
         /* Reset the console, but only if this is really init and we
          * are freshly booted */
         if (arg_running_as == SYSTEMD_SYSTEM && arg_action == ACTION_RUN)
-                console_setup(getpid() == 1 && !skip_setup);
+                console_setup(do_basic_system_setup() && !skip_setup);
 
         /* Open the logging devices, if possible and necessary */
         log_open();
@@ -1519,7 +1917,7 @@ int main(int argc, char *argv[]) {
 
         /* Make sure we leave a core dump without panicing the
          * kernel. */
-        if (getpid() == 1) {
+        if (do_basic_system_setup()) {
                 install_crash_handler();
 
                 r = mount_cgroup_controllers(arg_join_controllers);
