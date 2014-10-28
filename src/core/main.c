@@ -735,7 +735,7 @@ static int parse_argv(int argc, char *argv[]) {
                 { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
                 { "unit",                     required_argument, NULL, ARG_UNIT                     },
                 { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
-                { "basic-system-setup",        no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
+                { "no-basic-system-setup",    no_argument,       NULL, ARG_NO_BASIC_SYSTEM_SETUP    },
                 { "user",                     no_argument,       NULL, ARG_USER                     },
                 { "test",                     no_argument,       NULL, ARG_TEST                     },
                 { "help",                     no_argument,       NULL, 'h'                          },
@@ -843,8 +843,9 @@ static int parse_argv(int argc, char *argv[]) {
                         arg_running_as = SYSTEMD_USER;
                         break;
 
-                case ARG_BASIC_SYSTEM_SETUP:
-                        arg_basic_system_setup = true;
+                case ARG_NO_BASIC_SYSTEM_SETUP:
+                        log_info("Using no basic system setup");
+                        arg_basic_system_setup = 0;
                         break;
 
                 case ARG_TEST:
