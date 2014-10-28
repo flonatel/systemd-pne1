@@ -89,7 +89,6 @@ static enum {
 } arg_action = ACTION_RUN;
 static char *arg_default_unit = NULL;
 static SystemdRunningAs arg_running_as = _SYSTEMD_RUNNING_AS_INVALID;
-bool arg_basic_system_setup = false;
 static bool arg_dump_core = true;
 static bool arg_crash_shell = false;
 static int arg_crash_chvt = -1;
