@@ -713,7 +713,7 @@ static int parse_argv(int argc, char *argv[]) {
                 ARG_LOG_LOCATION,
                 ARG_UNIT,
                 ARG_SYSTEM,
-                ARG_BASIC_SYSTEM_SETUP,
+                ARG_NO_BASIC_SYSTEM_SETUP,
                 ARG_USER,
                 ARG_TEST,
                 ARG_VERSION,
