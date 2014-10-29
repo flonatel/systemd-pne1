@@ -713,7 +713,7 @@ static int parse_argv(int argc, char *argv[]) {
                 ARG_LOG_LOCATION,
                 ARG_UNIT,
                 ARG_SYSTEM,
-                ARG_NO_BASIC_SYSTEM_SETUP,
+                ARG_BASIC_SYSTEM_SETUP,
                 ARG_USER,
                 ARG_TEST,
                 ARG_VERSION,
@@ -735,7 +735,7 @@ static int parse_argv(int argc, char *argv[]) {
                 { "log-location",             optional_argument, NULL, ARG_LOG_LOCATION             },
                 { "unit",                     required_argument, NULL, ARG_UNIT                     },
                 { "system",                   no_argument,       NULL, ARG_SYSTEM                   },
-                { "no-basic-system-setup",    no_argument,       NULL, ARG_NO_BASIC_SYSTEM_SETUP    },
+                { "basic-system-setup",       no_argument,       NULL, ARG_BASIC_SYSTEM_SETUP       },
                 { "user",                     no_argument,       NULL, ARG_USER                     },
                 { "test",                     no_argument,       NULL, ARG_TEST                     },
                 { "help",                     no_argument,       NULL, 'h'                          },
@@ -843,9 +843,8 @@ static int parse_argv(int argc, char *argv[]) {
                         arg_running_as = SYSTEMD_USER;
                         break;
 
-                case ARG_NO_BASIC_SYSTEM_SETUP:
-                        log_info("Using no basic system setup");
-                        arg_basic_system_setup = 0;
+                case ARG_BASIC_SYSTEM_SETUP:
+                        arg_basic_system_setup = 1;
                         break;
 
                 case ARG_TEST:
@@ -1304,6 +1303,12 @@ int main(int argc, char *argv[]) {
          * have a quick peek here. */
         if (strv_find(argv+1, "--deserialize"))
                 skip_setup = true;
+
+        /* Determine if the basic setup is needed. We do
+         * the full command line parsing much later, so let's just
+         * have a quick peek here. */
+        if (strv_find(argv+1, "--basic-system-setup"))
+                arg_basic_system_setup = 1;
 
         /* If we have switched root, do all the special setup
          * things */
