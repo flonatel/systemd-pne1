@@ -240,11 +240,6 @@ int main(int argc, char *argv[]) {
         };
         int r;
 
-        if (getppid() != 1) {
-                log_error("This program should be invoked by init only.");
-                return EXIT_FAILURE;
-        }
-
         if (argc != 2) {
                 log_error("This program requires one argument.");
                 return EXIT_FAILURE;
